@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" href="/public/css/layout.css" />
+    <link rel="stylesheet" href="/public/css/dashboard.css" />
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="nav-left">
+        <a href="/dashboard" class="brand">TrueReview</a>
+    </div>
+
+    <div class="nav-center">
+        <a href="/add-movie" class="add-movie-btn-nav">+ Add Movie</a>
+    </div>
+
+    <div class="nav-right">
+        <a href="/dashboard">Home</a>
+        <a href="/watched">Watched</a>
+        <form action="/logout" method="POST" style="display:inline;">
+            <button class="logout-btn">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="dashboard-container">
+
+    <!-- Background Header -->
+    <div class="profile-header">
+        <img id="background-img" class="background-img" style="display:none;" />
+        <div id="background-placeholder" class="background-placeholder"></div>
+
+        <div class="profile-pic-wrapper">
+            <img id="profile-pic" class="profile-pic" style="display:none;" />
+            <div id="profile-placeholder" class="profile-placeholder">?</div>
+        </div>
+    </div>
+
+    <!-- NEW FLEX ROW: Left = profile info, Right = last watched -->
+    <div class="profile-flex-row">
+
+        <!-- PROFILE INFO (left side) -->
+        <div class="profile-info">
+            <h1 id="username" class="username"></h1>
+
+            <p id="user-title" class="user-title" style="display:none;"></p>
+            <p id="user-bio" class="user-bio" style="display:none;"></p>
+
+            <div class="follow-stats">
+                <span><strong id="followerCount">0</strong> Followers</span>
+                <span class="divider">|</span>
+                <span><strong id="followingCount">0</strong> Following</span>
+            </div>
+
+            <p id="stats-line">0 movies watched • Avg rating: N/A</p>
+
+            <p id="favorite-movie" class="favorite" style="display:none;">
+                Favorite Movie: <span id="favorite-title"></span>
+            </p>
+        </div>
+
+        <!-- LAST WATCHED (right side, moved here) -->
+        <div id="last-watched-container" class="last-watched" style="display:none;">
+            <img id="last-poster" class="last-poster" />
+            <h2 class="last-title">
+                <span id="last-title"></span>
+                <span class="rating-line">
+                    you rated it <span id="last-rating"></span>/5
+                </span>
+            </h2>
+        </div>
+
+    </div> <!-- END FLEX ROW -->
+
+</div>
+
+<script>
+    async function loadDashboard() {
+        const res = await fetch("/api/dashboard");
+        const data = await res.json();
+    
+        const user = data.user;
+        const followerCount = data.follower_count;
+        const followingCount = data.following_count;
+        const totalMovies = data.total_movies;
+        const avgRating = data.avg_rating;
+        const last = data.last;
+
+        // Background
+        if (user.profile_background_photo) {
+            document.getElementById("background-img").src =
+                "/uploads/profile_backgrounds/" + user.profile_background_photo;
+            document.getElementById("background-img").style.display = "block";
+            document.getElementById("background-placeholder").style.display = "none";
+        }
+
+        // Profile Pic
+        if (user.profile_picture) {
+            document.getElementById("profile-pic").src =
+                "/uploads/profile_pictures/" + user.profile_picture;
+            document.getElementById("profile-pic").style.display = "block";
+            document.getElementById("profile-placeholder").style.display = "none";
+        }
+
+        // Username / Title / Bio
+        document.getElementById("username").textContent = user.username;
+        if (user.title) {
+            const t = document.getElementById("user-title");
+            t.textContent = `"${user.title}"`;
+            t.style.display = "block";
+        }
+        if (user.bio) {
+            const b = document.getElementById("user-bio");
+            b.textContent = user.bio;
+            b.style.display = "block";
+        }
+
+        // Stats
+        document.getElementById("followerCount").textContent = followerCount;
+        document.getElementById("followingCount").textContent = followingCount;
+        document.getElementById("stats-line").textContent =
+            `${totalMovies} movies watched • Avg rating: ${avgRating || "N/A"}`;
+
+        // Favorite Movie
+        if (data.favorite_movie_title) {
+            document.getElementById("favorite-title").textContent = data.favorite_movie_title;
+            document.getElementById("favorite-movie").style.display = "block";
+        }
+
+        // Last watched
+        if (last) {
+            document.getElementById("last-poster").src = last.poster_full_url;
+            document.getElementById("last-title").textContent = last.movie_title;
+            document.getElementById("last-rating").textContent = last.user_rating;
+
+            document.getElementById("last-watched-container").style.display = "block";
+        }
+    }
+
+    loadDashboard();
+</script>
+
+</body>
+</html>

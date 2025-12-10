@@ -1,0 +1,40 @@
+.welcome-wrapper {
+    max-width: 600px;
+    margin: 120px auto;
+    text-align: center;
+    color: white;
+}
+
+.welcome-text {
+    font-size: 42px;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+.progress-bar {
+    width: 70%;
+    height: 12px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background: #ffd966;
+    border-radius: 8px;
+    animation: load 3s forwards ease-out;
+}
+
+@keyframes load {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+.loading-text {
+    margin-top: 20px;
+    font-size: 18px;
+    opacity: 0.8;
+}

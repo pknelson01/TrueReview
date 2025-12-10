@@ -1,0 +1,32 @@
+{
+  "name": "dataproject",
+  "version": "1.0.0",
+  "description": "Michaels App Idea (True Review...?): - Big Movie Database - Review is blurred, won't be un-blurred until you have seen the film for yourself and left your own review - Social Media-ish (Following Feed, what your friends are watching and friend recommendations) - Film Verification, validate that you did indeed watch the film so you are allowed to review the film based on your genuine, bias free, opinion. - Badge System - Movie Poster, date and time, photo attachment, secondary reviews after the hype - Snap Score type feature - Titles for certain events - Link to streaming services and a 'To be reviewed' queue.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pknelson01/DataProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pknelson01/DataProject/issues"
+  },
+  "homepage": "https://github.com/pknelson01/DataProject#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.2",
+    "multer": "^1.4.5-lts.1",
+    "path": "^0.12.7",
+    "pg": "^8.16.3"
+  }
+}

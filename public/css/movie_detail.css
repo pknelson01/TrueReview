@@ -1,0 +1,259 @@
+/* PREVENT HORIZONTAL SCROLL */
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* GENERAL PAGE STYLE */
+body {
+    background: #f7f3e8; /* Cream */
+    color: #111;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* --------------------------------------------------
+   UNIVERSAL NAVBAR — OPTION A
+   [ TrueReview ]     [ + Add Movie ]     [ Home | Watched | Logout ]
+---------------------------------------------------- */
+.navbar {
+    width: 100%;
+    background: white;
+    padding: 12px 30px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+/* LEFT — LOGO */
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.brand {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0a66c2;
+    text-decoration: none;
+}
+
+/* CENTER — ADD MOVIE BUTTON */
+.nav-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.add-movie-btn-nav {
+    background: #0a66c2;
+    padding: 10px 18px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+.add-movie-btn-nav:hover {
+    color: #f7f3e8;
+    text-decoration: underline;
+}
+
+/* RIGHT LINKS */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+}
+
+.nav-right a {
+    color: #333;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.nav-right a:hover {
+    color: #0a66c2;
+    text-decoration: underline;
+}
+
+/* Logout button styled like a link */
+.logout-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.logout-btn:hover {
+    color: #0a66c2;
+    text-decoration: underline;
+}
+
+/* --------------------------------------------------
+   MOVIE DETAIL PAGE STYLES
+---------------------------------------------------- */
+
+.detail-container {
+    max-width: 800px;
+    margin: 50px auto;
+    color: #111;
+}
+
+.back-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    text-decoration: none;
+    color: #0a66c2;
+    font-size: 18px;
+}
+
+.movie-title {
+    font-size: 36px;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #0a66c2;
+}
+
+.movie-section {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.poster {
+    width: 180px;
+    border-radius: 10px;
+}
+
+.year {
+    color: gray;
+    font-size: 18px;
+}
+
+/* Star Rating */
+.stars {
+    font-size: 40px;
+    margin: 10px 0;
+}
+
+.star {
+    cursor: pointer;
+    color: #bbb;
+    transition: 0.2s ease;
+}
+
+.star.selected,
+.star.hovered {
+    color: #0a66c2;
+}
+
+/* Edit Form */
+.edit-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.review-label {
+    font-size: 18px;
+}
+
+textarea {
+    width: 100%;
+    height: 140px;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+}
+
+.save-btn {
+    padding: 12px 20px;
+    background: #0a66c2;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.save-btn:hover {
+    background: #004182;
+}
+
+/* Unwatch Button */
+.unwatch-btn {
+    margin-top: 20px;
+    background: transparent;
+    color: #555;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.unwatch-btn:hover {
+    text-decoration: underline;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    color: #111;
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+    width: 320px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.confirm-btn {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background: gray;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <link rel="stylesheet" href="/public/css/layout.css">
+    <link rel="stylesheet" href="/public/css/login.css">
+</head>
+
+<body>
+
+    <div class="login-wrapper">
+
+        <h2 class="login-title">Login</h2>
+
+        <!-- ERROR MESSAGE PLACEHOLDER -->
+        <div class="error-box" style="display:none;">Invalid login</div>
+
+        <form action="/login" method="POST" class="login-form">
+
+            <label>Email</label>
+            <!-- <input type="email" name="email" required placeholder="Enter your email"> -->
+            <input type="text" name="email" required placeholder="Enter your email">
+
+            <label>Password</label>
+            <input type="password" name="password" required placeholder="Enter your password">
+
+            <button type="submit" class="login-btn">Login</button>
+
+        </form>
+
+        <div class="extras">
+            <a href="/">Back to Home</a>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rate Movie</title>
+
+    <link rel="stylesheet" href="/public/css/rate_movie.css" />
+    <link rel="stylesheet" href="/public/css/layout.css" />
+</head>
+
+<body>
+
+<!-- UNIVERSAL NAVBAR -->
+<nav class="navbar">
+
+    <div class="nav-left">
+        <a href="/dashboard" class="brand">TrueReview</a>
+    </div>
+
+    <div class="nav-center">
+        <a href="/add-movie" class="add-movie-btn-nav">+ Add Movie</a>
+    </div>
+
+    <div class="nav-right">
+        <a href="/dashboard">Home</a>
+        <a href="/watched">Watched</a>
+
+        <form action="/logout" method="POST" style="display:inline;">
+            <button class="logout-btn">Logout</button>
+        </form>
+    </div>
+
+</nav>
+
+<div class="rate-container">
+
+    <h1 class="rate-title">Rate This Movie</h1>
+
+    <!-- JS will fill these -->
+    <div class="movie-section">
+        <img id="movie-poster" class="poster" src="" alt="Poster" />
+        <div class="movie-info">
+            <h2 id="movie-title" class="title"></h2>
+            <p id="movie-year" class="year"></p>
+        </div>
+    </div>
+
+    <!-- Rating Form -->
+    <form id="rate-form" method="POST">
+        <label for="rating">Your Rating:</label>
+        <select id="rating" name="rating" required>
+            <option value="">Select</option>
+            <option value="1">1 / 5</option>
+            <option value="2">2 / 5</option>
+            <option value="3">3 / 5</option>
+            <option value="4">4 / 5</option>
+            <option value="5">5 / 5</option>
+        </select>
+
+        <label for="review">Review (optional):</label>
+        <textarea id="review" name="review" rows="4"></textarea>
+
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+
+</div>
+
+<script>
+// ----------------------------------------------------
+// Extract movie ID from URL
+// ----------------------------------------------------
+const movieId = window.location.pathname.split("/").pop();
+
+// Load movie details
+async function loadMovie() {
+    const res = await fetch(`/api/movie/${movieId}`);
+
+    if (!res.ok) {
+        console.error("Movie not found");
+        return;
+    }
+
+    const movie = await res.json();
+
+    document.getElementById("movie-poster").src = movie.poster_full_url;
+    document.getElementById("movie-title").textContent = movie.movie_title;
+    document.getElementById("movie-year").textContent = movie.releaseYear;
+
+    // update form action
+    document.getElementById("rate-form").action = `/add-movie/${movieId}`;
+}
+
+loadMovie();
+</script>
+
+</body>
+</html>

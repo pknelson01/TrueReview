@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Welcome</title>
+    <link rel="stylesheet" href="/public/css/welcome.css" />
+</head>
+
+<body>
+
+<div class="welcome-wrapper">
+
+    <h1 class="welcome-text">Welcome, USERNAME_HERE</h1>
+
+    <div class="progress-bar">
+        <div class="progress-fill"></div>
+    </div>
+
+    <p class="loading-text">Loading your dashboard...</p>
+
+</div>
+
+<script>
+    setTimeout(() => {
+        window.location.href = "/dashboard";
+    }, 3000);
+</script>
+
+</body>
+</html>
