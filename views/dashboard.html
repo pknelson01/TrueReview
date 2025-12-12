@@ -32,27 +32,41 @@
 
 <div class="dashboard-container">
 
-    <!-- WHITE LINKEDIN-STYLE CONTAINER -->
     <div class="content-card">
 
-        <!-- 🚨 MOVED INSIDE THE WHITE CARD 🚨 -->
-        <div class="profile-header">
-
+        <div class="profile-header bg-edit-zone">
+        
+            <!-- Background image -->
             <img id="background-img" class="background-img" style="display:none;" />
             <div id="background-placeholder" class="background-placeholder"></div>
-
-            <div class="profile-pic-wrapper editable-container" onclick="triggerFileInput('pfp-input')">
+        
+            <!-- Hover overlay for background -->
+            <div class="bg-edit-overlay" onclick="triggerFileInput('bg-input'); event.stopPropagation();">
+                <i class="fa-solid fa-pencil"></i>
+            </div>
+        
+            <!-- Hidden file input for background -->
+            <input id="bg-input" type="file" accept="image/*" style="display:none;">
+        
+            <!-- PROFILE PIC -->
+            <div class="profile-pic-wrapper pfp-edit-zone"
+                 onclick="triggerFileInput('pfp-input'); event.stopPropagation();">
+        
                 <img id="profile-pic" class="profile-pic" style="display:none;" />
                 <div id="profile-placeholder" class="profile-placeholder">?</div>
-
+        
                 <div class="edit-overlay">
                     <i class="fa-solid fa-pencil"></i>
                 </div>
-
+            
                 <input id="pfp-input" type="file" accept="image/*" style="display:none;">
             </div>
-
+        
         </div>
+
+        
+        
+        
         <!-- END MOVED SECTION -->
 
         <!-- CONTENT SECTION BELOW BANNER -->
@@ -154,6 +168,42 @@
     function triggerFileInput(id) {
         document.getElementById(id).click();
     }
+
+    // ============================================================
+    //     NEW CODE BELOW — THIS MAKES UPLOADS WORK
+    // ============================================================
+
+    // Upload new profile picture
+    document.getElementById("pfp-input").addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        await fetch("/api/upload/profile-picture", {
+            method: "POST",
+            body: formData
+        });
+
+        location.reload(); // refresh to show new picture
+    });
+
+    // Upload new background image
+    document.getElementById("bg-input").addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        await fetch("/api/upload/background", {
+            method: "POST",
+            body: formData
+        });
+
+        location.reload(); // refresh to show new background
+    });
 </script>
 
 </body>

@@ -164,32 +164,27 @@ body {
 
 
 /* -----------------------------------------
-   EDITABLE IMAGE OVERLAY (hover dim + pencil)
+   PROFILE PIC EDIT OVERLAY (hover dim + pencil)
 ------------------------------------------ */
-.editable-container {
+
+.pfp-edit-zone {
     position: relative;
     cursor: pointer;
 }
 
-.editable-container:hover .edit-overlay {
+.pfp-edit-zone:hover .edit-overlay {
     opacity: 1;
 }
 
 .edit-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-
+    inset: 0;
     background: rgba(0,0,0,0.45);
     opacity: 0;
     transition: opacity 0.25s ease;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     border-radius: inherit;
 }
 
@@ -197,6 +192,63 @@ body {
     font-size: 32px;
     color: white;
 }
+
+
+
+/* -----------------------------------------
+   BACKGROUND HEADER HOVER OVERLAY
+------------------------------------------ */
+
+.bg-edit-zone {
+    position: relative;
+}
+
+.bg-edit-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0,0,0,0.35);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+
+    border-radius: inherit;
+
+    /* prevent overlay from intercepting clicks unless visible */
+    pointer-events: none;
+}
+
+/* Show overlay only on hover */
+.bg-edit-zone:hover > .bg-edit-overlay {
+    opacity: 1;
+    pointer-events: auto; /* enables click when visible */
+}
+
+.bg-edit-overlay i {
+    font-size: 42px;
+    color: white;
+    pointer-events: none; /* icon shouldn’t block clicking */
+}
+
+
+
+/* ----------------------------------------------------------
+   FIX: Prevent background overlay from activating on PFP hover
+----------------------------------------------------------- */
+
+/* Do NOT trigger background hover when pointer is over PFP */
+.pfp-edit-zone:hover {
+    pointer-events: auto;
+}
+
+/* Disable background overlay whenever PFP is hovered */
+.pfp-edit-zone:hover ~ .bg-edit-overlay {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 
 /* -----------------------------------------
    LINKEDIN-STYLE CONTENT CARD (Option A)
