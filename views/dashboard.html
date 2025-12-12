@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="/public/css/layout.css" />
     <link rel="stylesheet" href="/public/css/dashboard.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
@@ -31,52 +32,66 @@
 
 <div class="dashboard-container">
 
-    <!-- Background Header -->
-    <div class="profile-header">
-        <img id="background-img" class="background-img" style="display:none;" />
-        <div id="background-placeholder" class="background-placeholder"></div>
+    <!-- WHITE LINKEDIN-STYLE CONTAINER -->
+    <div class="content-card">
 
-        <div class="profile-pic-wrapper">
-            <img id="profile-pic" class="profile-pic" style="display:none;" />
-            <div id="profile-placeholder" class="profile-placeholder">?</div>
-        </div>
-    </div>
+        <!-- 🚨 MOVED INSIDE THE WHITE CARD 🚨 -->
+        <div class="profile-header">
 
-    <!-- NEW FLEX ROW: Left = profile info, Right = last watched -->
-    <div class="profile-flex-row">
+            <img id="background-img" class="background-img" style="display:none;" />
+            <div id="background-placeholder" class="background-placeholder"></div>
 
-        <!-- PROFILE INFO (left side) -->
-        <div class="profile-info">
-            <h1 id="username" class="username"></h1>
+            <div class="profile-pic-wrapper editable-container" onclick="triggerFileInput('pfp-input')">
+                <img id="profile-pic" class="profile-pic" style="display:none;" />
+                <div id="profile-placeholder" class="profile-placeholder">?</div>
 
-            <p id="user-title" class="user-title" style="display:none;"></p>
-            <p id="user-bio" class="user-bio" style="display:none;"></p>
+                <div class="edit-overlay">
+                    <i class="fa-solid fa-pencil"></i>
+                </div>
 
-            <div class="follow-stats">
-                <span><strong id="followerCount">0</strong> Followers</span>
-                <span class="divider">|</span>
-                <span><strong id="followingCount">0</strong> Following</span>
+                <input id="pfp-input" type="file" accept="image/*" style="display:none;">
             </div>
 
-            <p id="stats-line">0 movies watched • Avg rating: N/A</p>
+        </div>
+        <!-- END MOVED SECTION -->
 
-            <p id="favorite-movie" class="favorite" style="display:none;">
-                Favorite Movie: <span id="favorite-title"></span>
-            </p>
+        <!-- CONTENT SECTION BELOW BANNER -->
+        <div class="profile-flex-row">
+
+            <div class="profile-info">
+                <h1 id="username" class="username"></h1>
+
+                <p id="user-title" class="user-title" style="display:none;"></p>
+                <p id="user-bio" class="user-bio" style="display:none;"></p>
+
+                <div class="follow-stats">
+                    <span><strong id="followerCount">0</strong> Followers</span>
+                    <span class="divider">|</span>
+                    <span><strong id="followingCount">0</strong> Following</span>
+                </div>
+
+                <div class="movie-stats">
+                    <p id="stats-line">0 movies watched • Avg rating: N/A</p>
+                </div>
+
+                <p id="favorite-movie" class="favorite" style="display:none;">
+                    Favorite Movie: <span id="favorite-title"></span>
+                </p>
+            </div>
+
+            <div id="last-watched-container" class="last-watched" style="display:none;">
+                <img id="last-poster" class="last-poster" />
+                <h2 class="last-title">
+                    <span id="last-title"></span>
+                    <span class="rating-line">
+                        you rated it <span id="last-rating"></span>/5
+                    </span>
+                </h2>
+            </div>
+
         </div>
 
-        <!-- LAST WATCHED (right side, moved here) -->
-        <div id="last-watched-container" class="last-watched" style="display:none;">
-            <img id="last-poster" class="last-poster" />
-            <h2 class="last-title">
-                <span id="last-title"></span>
-                <span class="rating-line">
-                    you rated it <span id="last-rating"></span>/5
-                </span>
-            </h2>
-        </div>
-
-    </div> <!-- END FLEX ROW -->
+    </div> <!-- END CONTENT CARD -->
 
 </div>
 
@@ -84,13 +99,8 @@
     async function loadDashboard() {
         const res = await fetch("/api/dashboard");
         const data = await res.json();
-    
+
         const user = data.user;
-        const followerCount = data.follower_count;
-        const followingCount = data.following_count;
-        const totalMovies = data.total_movies;
-        const avgRating = data.avg_rating;
-        const last = data.last;
 
         // Background
         if (user.profile_background_photo) {
@@ -100,7 +110,7 @@
             document.getElementById("background-placeholder").style.display = "none";
         }
 
-        // Profile Pic
+        // Profile picture
         if (user.profile_picture) {
             document.getElementById("profile-pic").src =
                 "/uploads/profile_pictures/" + user.profile_picture;
@@ -108,7 +118,6 @@
             document.getElementById("profile-placeholder").style.display = "none";
         }
 
-        // Username / Title / Bio
         document.getElementById("username").textContent = user.username;
         if (user.title) {
             const t = document.getElementById("user-title");
@@ -121,29 +130,30 @@
             b.style.display = "block";
         }
 
-        // Stats
-        document.getElementById("followerCount").textContent = followerCount;
-        document.getElementById("followingCount").textContent = followingCount;
-        document.getElementById("stats-line").textContent =
-            `${totalMovies} movies watched • Avg rating: ${avgRating || "N/A"}`;
+        document.getElementById("followerCount").textContent = data.follower_count;
+        document.getElementById("followingCount").textContent = data.following_count;
 
-        // Favorite Movie
+        document.getElementById("stats-line").textContent =
+            `${data.total_movies} movies watched • Avg rating: ${data.avg_rating || "N/A"}`;
+
         if (data.favorite_movie_title) {
             document.getElementById("favorite-title").textContent = data.favorite_movie_title;
             document.getElementById("favorite-movie").style.display = "block";
         }
 
-        // Last watched
-        if (last) {
-            document.getElementById("last-poster").src = last.poster_full_url;
-            document.getElementById("last-title").textContent = last.movie_title;
-            document.getElementById("last-rating").textContent = last.user_rating;
-
+        if (data.last) {
+            document.getElementById("last-poster").src = data.last.poster_full_url;
+            document.getElementById("last-title").textContent = data.last.movie_title;
+            document.getElementById("last-rating").textContent = data.last.user_rating;
             document.getElementById("last-watched-container").style.display = "block";
         }
     }
 
     loadDashboard();
+
+    function triggerFileInput(id) {
+        document.getElementById(id).click();
+    }
 </script>
 
 </body>
