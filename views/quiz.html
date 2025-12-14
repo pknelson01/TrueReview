@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TrueReview Architecture Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            color: #333;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.05em;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #28a745;
+            color: white;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #dc3545;
+            color: white;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .results-card {
+            display: none;
+            text-align: center;
+        }
+
+        .results-card.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .score-excellent { background: linear-gradient(135deg, #28a745, #20c997); }
+        .score-good { background: linear-gradient(135deg, #17a2b8, #007bff); }
+        .score-average { background: linear-gradient(135deg, #ffc107, #ff9800); }
+        .score-poor { background: linear-gradient(135deg, #dc3545, #c82333); }
+
+        .results-message {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .results-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 1.1em;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>TrueReview Architecture Quiz</h1>
+    <p class="subtitle">Test your knowledge of the TrueReview codebase</p>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressBar"></div>
+    </div>
+
+    <div id="quizContent"></div>
+
+    <div id="resultsCard" class="results-card">
+        <h2 class="results-message" id="resultsMessage"></h2>
+        <div class="score-circle" id="scoreCircle"></div>
+        <div class="results-details">
+            <div class="detail-row">
+                <span class="detail-label">Correct Answers:</span>
+                <span class="detail-value" id="correctCount"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Incorrect Answers:</span>
+                <span class="detail-value" id="incorrectCount"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Score:</span>
+                <span class="detail-value" id="scorePercent"></span>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="restartQuiz()">Retake Quiz</button>
+    </div>
+</div>
+
+<script>
+const questions = [
+    {
+        question: "What is the primary web framework used in TrueReview?",
+        options: ["React", "Express.js", "Django", "Flask"],
+        correct: 1,
+        explanation: "TrueReview uses Express.js (version 5.2.1) as its web framework, as seen in server.js and package.json."
+    },
+    {
+        question: "What database technology does TrueReview use to store user and movie data?",
+        options: ["MongoDB", "MySQL", "PostgreSQL", "SQLite"],
+        correct: 2,
+        explanation: "TrueReview uses PostgreSQL, configured with the 'pg' package and hosted on Render."
+    },
+    {
+        question: "How does TrueReview handle user authentication sessions?",
+        options: ["JWT tokens", "Express sessions", "OAuth 2.0", "Basic Auth"],
+        correct: 1,
+        explanation: "The app uses express-session middleware to maintain user sessions, storing user_id in req.session."
+    },
+    {
+        question: "What middleware function protects routes that require authentication?",
+        options: ["authCheck()", "requireLogin()", "isAuthenticated()", "verifyUser()"],
+        correct: 1,
+        explanation: "The requireLogin() middleware checks if req.session.user_id exists and redirects to /login if not."
+    },
+    {
+        question: "Which table stores the relationship between users and the movies they've watched?",
+        options: ["user_movies", "movie_list", "watched_list", "user_watchlist"],
+        correct: 2,
+        explanation: "The watched_list table stores user ratings, reviews, and watch history with foreign keys to both users and all_movies."
+    },
+    {
+        question: "What package is used to handle file uploads for profile pictures and backgrounds?",
+        options: ["express-fileupload", "multer", "formidable", "busboy"],
+        correct: 1,
+        explanation: "Multer is used with diskStorage configuration to handle profile picture and background image uploads."
+    },
+    {
+        question: "Where are uploaded profile pictures stored in the project?",
+        options: ["public/images", "uploads/profile_pictures", "static/uploads", "assets/profiles"],
+        correct: 1,
+        explanation: "Profile pictures are stored in uploads/profile_pictures/ with filenames like pfp_[user_id]_[timestamp]."
+    },
+    {
+        question: "What is the primary key column name in the 'users' table?",
+        options: ["id", "user_id", "userId", "pk_user"],
+        correct: 1,
+        explanation: "The users table uses 'user_id' as its SERIAL PRIMARY KEY column."
+    },
+    {
+        question: "How are the frontend pages organized in the project structure?",
+        options: ["In a 'pages' folder", "In a 'views' folder", "In a 'templates' folder", "In the root directory"],
+        correct: 1,
+        explanation: "All HTML pages are stored in the 'views' folder (dashboard.html, watched.html, login.html, etc.)."
+    },
+    {
+        question: "What HTTP method does the logout functionality use?",
+        options: ["GET", "POST", "DELETE", "PUT"],
+        correct: 1,
+        explanation: "Logout uses POST method (app.post('/logout')) and is triggered via a form submission in the navbar."
+    },
+    {
+        question: "Which API endpoint provides all the data for the dashboard page?",
+        options: ["/api/user", "/api/dashboard", "/api/profile", "/api/user-data"],
+        correct: 1,
+        explanation: "The /api/dashboard endpoint returns user info, followers, stats, and last watched movie data."
+    },
+    {
+        question: "What technology/pattern is used for the frontend pages?",
+        options: ["React components", "EJS templates", "Plain HTML with JavaScript", "Vue.js"],
+        correct: 2,
+        explanation: "TrueReview uses plain HTML files with vanilla JavaScript (no template engine or framework)."
+    },
+    {
+        question: "How does the dashboard.html page fetch and display user data?",
+        options: [
+            "Server-side rendering with EJS",
+            "Inline data from query parameters",
+            "AJAX fetch to /api/dashboard",
+            "WebSocket connection"
+        ],
+        correct: 2,
+        explanation: "The dashboard.html uses fetch('/api/dashboard') to get JSON data and dynamically updates the DOM with JavaScript."
+    },
+    {
+        question: "What foreign key relationships exist in the watched_list table?",
+        options: [
+            "Only links to users",
+            "Only links to all_movies",
+            "Links to both users and all_movies",
+            "No foreign keys"
+        ],
+        correct: 2,
+        explanation: "watched_list has foreign keys to both users(user_id) and all_movies(movie_id)."
+    },
+    {
+        question: "What CSS approach is used for styling the pages?",
+        options: [
+            "Tailwind CSS",
+            "Bootstrap",
+            "Separate CSS files per page",
+            "Inline styles only"
+        ],
+        correct: 2,
+        explanation: "Each page has its own CSS file (dashboard.css, watched.css) plus a shared layout.css for the navbar."
+    },
+    {
+        question: "Where are static assets (CSS, JS, images) served from?",
+        options: [
+            "The 'public' and 'uploads' directories",
+            "A CDN",
+            "The 'static' directory",
+            "Inline in HTML files"
+        ],
+        correct: 0,
+        explanation: "Express serves static files from /public (CSS/JS) and /uploads (user-uploaded images) directories."
+    },
+    {
+        question: "What happens when a user tries to access /dashboard without being logged in?",
+        options: [
+            "Shows an error page",
+            "Redirects to /login",
+            "Shows a login modal",
+            "Returns 403 Forbidden"
+        ],
+        correct: 1,
+        explanation: "The requireLogin middleware redirects unauthorized users to /login with res.redirect('/login')."
+    },
+    {
+        question: "How does the watched.js client-side code retrieve the user's watched movies?",
+        options: [
+            "From localStorage",
+            "From URL parameters",
+            "Fetch request to /api/watched",
+            "Embedded in the HTML"
+        ],
+        correct: 2,
+        explanation: "watched.js calls fetch('/api/watched') to get the user's movie list and renders cards dynamically."
+    },
+    {
+        question: "What port does the TrueReview server run on by default?",
+        options: ["8080", "5000", "3000", "4000"],
+        correct: 2,
+        explanation: "The server listens on port 3000 as defined by const PORT = 3000 in server.js."
+    },
+    {
+        question: "In the overall architecture, how do the HTML pages communicate with the database?",
+        options: [
+            "Direct database connections from the browser",
+            "Through server-side API routes that query the database",
+            "Using a GraphQL layer",
+            "Via WebSockets"
+        ],
+        correct: 1,
+        explanation: "HTML pages use JavaScript fetch() to call Express API routes (like /api/dashboard), which then query PostgreSQL and return JSON."
+    },
+    {
+        question: "What table manages the follower/following relationships between users?",
+        options: ["user_relationships", "follows", "user_follows", "social_graph"],
+        correct: 2,
+        explanation: "The user_follows table stores follower_id and following_id with a composite primary key."
+    },
+    {
+        question: "How are movie posters accessed in the frontend?",
+        options: [
+            "Stored as base64 in the database",
+            "Using the poster_full_url from the all_movies table",
+            "Uploaded by users",
+            "Generated on the fly"
+        ],
+        correct: 1,
+        explanation: "Movie posters are accessed via the poster_full_url column which contains full URLs to poster images."
+    },
+    {
+        question: "What column in the users table stores a user's personalized description?",
+        options: ["description", "about", "bio", "profile_text"],
+        correct: 2,
+        explanation: "The 'bio' column in the users table stores user bios, displayed on the dashboard."
+    },
+    {
+        question: "When a user uploads a new profile picture, what happens to update the database?",
+        options: [
+            "Filename is stored via UPDATE query to users table",
+            "Image is converted to BLOB and stored",
+            "Only stored in filesystem, no DB update",
+            "Stored in a separate images table"
+        ],
+        correct: 0,
+        explanation: "The /api/upload/profile-picture endpoint saves the file to disk and UPDATEs the users table with the filename."
+    },
+    {
+        question: "What is the purpose of the 'requireLogin' middleware in the application architecture?",
+        options: [
+            "To validate password strength",
+            "To protect routes from unauthorized access",
+            "To log user activity",
+            "To rate limit requests"
+        ],
+        correct: 1,
+        explanation: "requireLogin acts as route protection, ensuring only authenticated users (with session) can access certain pages and APIs."
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answers = [];
+
+function initQuiz() {
+    renderQuestion();
+    updateProgress();
+}
+
+function renderQuestion() {
+    const quizContent = document.getElementById('quizContent');
+    const q = questions[currentQuestion];
+
+    quizContent.innerHTML = `
+        <div class="question-card active">
+            <div class="question-number">Question ${currentQuestion + 1} of ${questions.length}</div>
+            <div class="question-text">${q.question}</div>
+            <div class="options" id="options"></div>
+            <div class="feedback" id="feedback"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="previousQuestion()" ${currentQuestion === 0 ? 'style="visibility:hidden"' : ''}>
+                    Previous
+                </button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>
+                    ${currentQuestion === questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+                </button>
+            </div>
+        </div>
+    `;
+
+    const optionsContainer = document.getElementById('options');
+    q.options.forEach((option, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option';
+        optionDiv.textContent = option;
+        optionDiv.onclick = () => selectOption(index);
+        optionsContainer.appendChild(optionDiv);
+    });
+}
+
+function selectOption(index) {
+    const options = document.querySelectorAll('.option');
+    const q = questions[currentQuestion];
+    const feedback = document.getElementById('feedback');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // Disable all options after selection
+    options.forEach(opt => opt.classList.add('disabled'));
+
+    // Mark selected answer
+    options[index].classList.add('selected');
+
+    // Show correct answer
+    options[q.correct].classList.add('correct');
+
+    // Mark incorrect if wrong answer selected
+    if (index !== q.correct) {
+        options[index].classList.remove('selected');
+        options[index].classList.add('incorrect');
+        feedback.className = 'feedback incorrect show';
+        feedback.textContent = `Incorrect. ${q.explanation}`;
+    } else {
+        score++;
+        feedback.className = 'feedback correct show';
+        feedback.textContent = `Correct! ${q.explanation}`;
+    }
+
+    answers.push(index);
+    nextBtn.disabled = false;
+}
+
+function nextQuestion() {
+    if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+        updateProgress();
+    } else {
+        showResults();
+    }
+}
+
+function previousQuestion() {
+    if (currentQuestion > 0) {
+        // Remove last answer
+        answers.pop();
+        score = answers.filter((ans, i) => ans === questions[i].correct).length;
+
+        currentQuestion--;
+        renderQuestion();
+        updateProgress();
+    }
+}
+
+function updateProgress() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+}
+
+function showResults() {
+    const percentage = Math.round((score / questions.length) * 100);
+    const resultsCard = document.getElementById('resultsCard');
+    const scoreCircle = document.getElementById('scoreCircle');
+    const resultsMessage = document.getElementById('resultsMessage');
+
+    document.getElementById('quizContent').style.display = 'none';
+    resultsCard.classList.add('active');
+
+    document.getElementById('correctCount').textContent = `${score} / ${questions.length}`;
+    document.getElementById('incorrectCount').textContent = questions.length - score;
+    document.getElementById('scorePercent').textContent = percentage + '%';
+
+    scoreCircle.textContent = percentage + '%';
+
+    if (percentage >= 90) {
+        scoreCircle.className = 'score-circle score-excellent';
+        resultsMessage.textContent = 'Excellent! You\'re a TrueReview expert!';
+    } else if (percentage >= 70) {
+        scoreCircle.className = 'score-circle score-good';
+        resultsMessage.textContent = 'Great job! You know the codebase well!';
+    } else if (percentage >= 50) {
+        scoreCircle.className = 'score-circle score-average';
+        resultsMessage.textContent = 'Good effort! Review the code to improve.';
+    } else {
+        scoreCircle.className = 'score-circle score-poor';
+        resultsMessage.textContent = 'Keep studying! You\'ll get there.';
+    }
+}
+
+function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    answers = [];
+    document.getElementById('resultsCard').classList.remove('active');
+    document.getElementById('quizContent').style.display = 'block';
+    initQuiz();
+}
+
+// Start the quiz when page loads
+initQuiz();
+</script>
+
+</body>
+</html>

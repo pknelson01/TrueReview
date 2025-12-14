@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONCRETE - Watched List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Anonymous+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --concrete: #525252;
+            --steel: #A8A8A8;
+            --white: #FFFFFF;
+            --charcoal: #2B2B2B;
+            --off-white: #E8E8E8;
+        }
+        
+        body {
+            font-family: 'Anonymous Pro', monospace;
+            background: var(--concrete);
+            color: var(--off-white);
+            line-height: 1.5;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 100px 100px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header-bar {
+            background: var(--charcoal);
+            border-bottom: 4px solid var(--white);
+            padding: 0;
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            height: 120px;
+        }
+        
+        .logo-section {
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 2px solid var(--charcoal);
+        }
+        
+        .logo {
+            font-family: 'Oswald', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--charcoal);
+            letter-spacing: -2px;
+        }
+        
+        .center-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 40px;
+        }
+        
+        .site-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 24px;
+            color: var(--steel);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+        
+        .coordinates {
+            font-size: 12px;
+            color: var(--white);
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+        
+        .status-section {
+            background: var(--charcoal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 2px solid var(--white);
+            font-size: 14px;
+            color: var(--white);
+            letter-spacing: 2px;
+        }
+        
+        .tab-bar {
+            background: var(--charcoal);
+            border-bottom: 2px solid var(--white);
+            height: 80px;
+            display: flex;
+            align-items: stretch;
+        }
+        
+        .tab {
+            flex: 1;
+            max-width: 250px;
+            background: rgba(0, 0, 0, 0.3);
+            border-right: 2px solid var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--steel);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+        }
+        
+        .tab.active {
+            background: var(--white);
+            color: var(--charcoal);
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--white);
+        }
+        
+        .main-content {
+            padding: 60px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--white);
+        }
+        
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--off-white);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .entry-count {
+            font-size: 14px;
+            color: var(--white);
+            letter-spacing: 2px;
+        }
+        
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+        }
+        
+        .movie-entry {
+            position: relative;
+            aspect-ratio: 2/3;
+            background: var(--charcoal);
+            border: 2px solid var(--white);
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .movie-entry:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.4);
+            border-color: var(--white);
+        }
+        
+        .poster {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--charcoal) 0%, #1a1a1a 100%);
+            font-family: 'Oswald', sans-serif;
+            font-size: 72px;
+            color: var(--steel);
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        
+        .movie-entry:hover .poster {
+            opacity: 0.1;
+        }
+        
+        .movie-info {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(43, 43, 43, 0.95);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .movie-entry:hover .movie-info {
+            opacity: 1;
+        }
+        
+        .rating-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1;
+        }
+        
+        .rating-label {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            font-size: 10px;
+            color: var(--steel);
+            letter-spacing: 2px;
+        }
+        
+        .movie-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--off-white);
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+        
+        .movie-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .meta-item {
+            display: flex;
+            border-left: 3px solid var(--white);
+            padding-left: 15px;
+        }
+        
+        .meta-label {
+            font-size: 10px;
+            color: var(--steel);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            width: 60px;
+        }
+        
+        .meta-value {
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            color: var(--off-white);
+        }
+        
+        .entry-number {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            color: var(--white);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="header-bar">
+            <div class="logo-section">
+                <div class="logo">CONCRETE</div>
+            </div>
+            <div class="center-info">
+                <div class="site-title">Film Analysis Platform</div>
+                <div class="coordinates">LAT: 40.7128° N / LONG: 74.0060° W</div>
+            </div>
+            <div class="status-section">
+                SYSTEM: ONLINE
+            </div>
+        </div>
+        
+        <div class="tab-bar">
+            <div class="tab active">WATCHED</div>
+            <div class="tab">TO WATCH</div>
+            <div class="tab">FAVORITES</div>
+            <div class="tab">REVIEWS</div>
+        </div>
+        
+        <div class="main-content">
+            <div class="section-header">
+                <h2 class="section-title">Watched List</h2>
+                <div class="entry-count">TOTAL ENTRIES: 12</div>
+            </div>
+            
+            <div class="movie-grid">
+                <div class="movie-entry">
+                    <div class="poster">12</div>
+                    <div class="entry-number">ENTRY_012</div>
+                    <div class="movie-info">
+                        <div class="rating-display">9.2</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Temporal Fracture</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Sci-Fi</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2024</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">11</div>
+                    <div class="entry-number">ENTRY_011</div>
+                    <div class="movie-info">
+                        <div class="rating-display">8.5</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Concrete Jungle</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Drama</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2024</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">10</div>
+                    <div class="entry-number">ENTRY_010</div>
+                    <div class="movie-info">
+                        <div class="rating-display">9.7</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Steel Meridian</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Thriller</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2024</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">09</div>
+                    <div class="entry-number">ENTRY_009</div>
+                    <div class="movie-info">
+                        <div class="rating-display">7.8</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Assembly Line</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Drama</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2024</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">08</div>
+                    <div class="entry-number">ENTRY_008</div>
+                    <div class="movie-info">
+                        <div class="rating-display">8.9</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Urban Decay</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Horror</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2023</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">07</div>
+                    <div class="entry-number">ENTRY_007</div>
+                    <div class="movie-info">
+                        <div class="rating-display">9.1</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Rust & Bone</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Action</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2023</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">06</div>
+                    <div class="entry-number">ENTRY_006</div>
+                    <div class="movie-info">
+                        <div class="rating-display">8.3</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Foundation</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Sci-Fi</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2023</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">05</div>
+                    <div class="entry-number">ENTRY_005</div>
+                    <div class="movie-info">
+                        <div class="rating-display">7.5</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Iron Sky</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Thriller</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2023</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">04</div>
+                    <div class="entry-number">ENTRY_004</div>
+                    <div class="movie-info">
+                        <div class="rating-display">9.4</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Mechanism</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Mystery</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2023</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">03</div>
+                    <div class="entry-number">ENTRY_003</div>
+                    <div class="movie-info">
+                        <div class="rating-display">8.7</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Grid Lock</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Action</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2022</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">02</div>
+                    <div class="entry-number">ENTRY_002</div>
+                    <div class="movie-info">
+                        <div class="rating-display">9.0</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Industrial Complex</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Drama</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2022</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="movie-entry">
+                    <div class="poster">01</div>
+                    <div class="entry-number">ENTRY_001</div>
+                    <div class="movie-info">
+                        <div class="rating-display">8.8</div>
+                        <div class="rating-label">RATING</div>
+                        <h3 class="movie-title">Raw Material</h3>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Genre:</span>
+                                <span class="meta-value">Thriller</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Year:</span>
+                                <span class="meta-value">2022</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

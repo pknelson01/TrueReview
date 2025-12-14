@@ -130,6 +130,14 @@ app.get("/dashboard", requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, "views/dashboard.html"));
 });
 
+app.get("/watched", requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, "views/watched.html"));
+});
+
+app.get("/quiz", (req, res) => {
+  res.sendFile(path.join(__dirname, "views/quiz.html"));
+});
+
 // ============================================================================
 // API — DASHBOARD DATA
 // ============================================================================
@@ -194,6 +202,24 @@ app.get("/api/dashboard", requireLogin, async (req, res) => {
     favorite_movie_title,
     last,
   });
+});
+
+// ============================================================================
+// API — WATCHED LIST DATA
+// ============================================================================
+app.get("/api/watched", requireLogin, async (req, res) => {
+  const user_id = req.session.user_id;
+
+  const sql = `
+    SELECT wl.watched_id, wl.user_rating, am.movie_title, am.poster_full_url
+    FROM watched_list wl
+    JOIN all_movies am ON wl.movie_id = am.movie_id
+    WHERE wl.user_id = $1
+    ORDER BY wl.watched_id DESC
+  `;
+
+  const result = await db.query(sql, [user_id]);
+  res.json(result.rows);
 });
 
 // ============================================================================
